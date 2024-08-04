@@ -1,6 +1,7 @@
-import { registerTemplate } from '@/config/templates/register.template';
+import { templateToSend } from '@/config/templates/templates';
 import { MessageQueue, MessageRabbit } from '@/types/message.type';
 import { SendQueue } from '@/types/send-qeue';
+import { kebabToTitleCase } from '@/utils/kebabToTitleCase';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import amqp from 'amqp-connection-manager';
@@ -19,29 +20,6 @@ export class MailQeueService {
     };
   }
 
-  async sendQueue({
-    message,
-    queue: cola,
-    key = null,
-  }: SendQueue<MessageQueue>) {
-    let connection;
-    try {
-      connection = await amqp.connect(this.connect);
-      const channel = await connection.createChannel();
-      const sent = channel.publish(
-        cola,
-        key,
-        Buffer.from(JSON.stringify(message)),
-      );
-
-      sent
-        ? console.log(`Sent message to "${key}" exchange`, message)
-        : console.log(`Fails sending message to "${key}" exchange`, message);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
   async sendEmailQueue({
     message,
     queue: routing,
@@ -51,23 +29,20 @@ export class MailQeueService {
     try {
       connection = await amqp.connect(this.connect);
       const channel = await connection.createChannel();
-      // await channel.assertExchange(exchange, 'direct');
-
       const sent = channel.publish(
         exchange,
         routing,
         Buffer.from(JSON.stringify(message)),
         {
-          // persistent: true,
+          persistent: true,
         },
       );
 
       sent
-        ? console.log(`Sent message to "${exchange}" exchange`, message)
-        : console.log(
-            `Fails sending message to "${exchange}" exchange`,
-            message,
-          );
+        ? console.log(
+            `Sent message to "${exchange}" exchange and queue "${routing}"`,
+          )
+        : console.log(`Fails sending message to "${exchange}" exchange`);
     } catch (err) {
       console.error(err);
     }
@@ -87,39 +62,25 @@ export class MailQeueService {
               " [x] Received '%s'",
               JSON.parse(message.content.toString()),
             );
-            const { email, subject, url, nombre }: MessageQueue = JSON.parse(
-              message.content,
-            );
+            const { email, subject, url, nombre, exchange }: MessageQueue =
+              JSON.parse(message.content);
 
-            let template;
-
-            switch (queue) {
-              case 'register': {
-                template = registerTemplate(email, url, nombre);
-                break;
-              }
-
-              case 'login': {
-                template = '';
-                break;
-              }
-
-              case 'recovery': {
-                template = '';
-                break;
-              }
-
-              case 'forgot_password': {
-                template = '';
-                break;
-              }
-            }
+            const bodyT = {
+              queue,
+              app: kebabToTitleCase(exchange),
+              urlApp: this.configService.get<string>('FRONT_HOST'),
+              imgApp:
+                'https://blocks.primeng.org/assets/images/blocks/logos/hyper.svg',
+              mailApp: 'soporte_tic@misgastosapp.com',
+              name: nombre,
+              link: url,
+            };
 
             mailer.sendMail({
               from: this.configService.get<string>('EMAIL_FROM'),
-              to: email,
+              to: `${nombre} <${email}>`,
               subject: subject,
-              html: template,
+              html: templateToSend(bodyT),
             });
           }
         },

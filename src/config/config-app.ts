@@ -8,9 +8,9 @@ export const configApp = (): ConfigApp => {
     emailFrom: process.env.EMAIL_FROM || '"SGD Sports" <info@api-sgd.cloud>',
     apiPort: process.env.API_PORT || '3000',
     tz: process.env.TZ || 'Europe/Madrid',
-    frontHost: process.env.FRONT_HOST,
-    hostMethod: process.env.HOST_METHODS,
-    hostAllowedHeader: process.env.HOST_ALLOWED_HEADERS,
+    frontHost: process.env.FRONT_HOST || '*',
+    hostMethod: process.env.HOST_METHODS || '*',
+    hostAllowedHeader: process.env.HOST_ALLOWED_HEADERS || '*',
     hostCredentials: Boolean(process.env.HOST_CREDENTIALS),
     transportFallback: process.env.TRANSPORT_FALLBACK || 'smtp://',
     mail: {
@@ -28,6 +28,12 @@ export const configApp = (): ConfigApp => {
       username: process.env.RABBITMQ_USER || 'guest',
       password: process.env.RABBITMQ_PASS || 'guest',
       vhost: process.env.RABBITMQ_VHOST || '/',
+      colas: Array(process.env.RABBITMQ_COLAS) || [
+        'recovery',
+        'forgot_password',
+        'login',
+        'register',
+      ],
     },
   };
 };

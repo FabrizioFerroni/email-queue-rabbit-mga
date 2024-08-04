@@ -6,9 +6,9 @@ export type ConfigApp = {
   mail: MailConfig;
   rabbit: RabbitConfig;
   tz: string;
-  frontHost: string;
-  hostMethod: string;
-  hostAllowedHeader: string;
+  frontHost: string | string[];
+  hostMethod: string | string[];
+  hostAllowedHeader: string | string[];
   hostCredentials: boolean;
 };
 
@@ -19,6 +19,7 @@ type RabbitConfig = {
   username: string;
   password: string;
   vhost: string;
+  colas: string[];
 };
 
 type MailConfig = {
