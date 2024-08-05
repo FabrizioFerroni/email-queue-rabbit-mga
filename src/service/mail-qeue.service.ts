@@ -62,18 +62,28 @@ export class MailQeueService {
               " [x] Received '%s'",
               JSON.parse(message.content.toString()),
             );
-            const { email, subject, url, nombre, exchange }: MessageQueue =
-              JSON.parse(message.content);
+            const {
+              email,
+              subject,
+              url,
+              nombre,
+              exchange,
+              lastname,
+              urlApp,
+              mailApp,
+              imgApp,
+            }: MessageQueue = JSON.parse(message.content);
 
+            // 'https://blocks.primeng.org/assets/images/blocks/logos/hyper.svg'
             const bodyT = {
               queue,
               app: kebabToTitleCase(exchange),
-              urlApp: this.configService.get<string>('FRONT_HOST'),
-              imgApp:
-                'https://blocks.primeng.org/assets/images/blocks/logos/hyper.svg',
-              mailApp: 'soporte_tic@misgastosapp.com',
+              urlApp,
+              imgApp,
+              mailApp,
               name: nombre,
               link: url,
+              lastname,
             };
 
             mailer.sendMail({

@@ -1,7 +1,9 @@
 import { templateToString } from '@/mails/config.mail';
 
 export const templateToSend = (bodyT: Record<string, unknown>): string => {
-  const { queue, app, urlApp, imgApp, name, link, mailApp } = bodyT;
+  const { queue, app, urlApp, imgApp, name, link, mailApp, lastname, email } =
+    bodyT;
+
   let template: string;
   switch (queue) {
     case 'register': {
@@ -18,17 +20,29 @@ export const templateToSend = (bodyT: Record<string, unknown>): string => {
     }
 
     case 'login': {
-      template = '';
+      const body = {
+        app,
+        urlApp,
+        imgApp,
+        mailApp,
+        name,
+        link,
+        lastname: lastname,
+        email,
+      };
+      template = templateToString('login', body);
       break;
     }
 
     case 'recovery': {
-      template = '';
+      const body = { app, urlApp, imgApp, mailApp, name, link };
+      template = templateToString('recovery', body);
       break;
     }
 
     case 'forgot_password': {
-      template = '';
+      const body = { app, urlApp, imgApp, mailApp, name, link };
+      template = templateToString('forgot_password', body);
       break;
     }
   }

@@ -32,7 +32,8 @@ export class AppController {
     @Param('exchange') exchange: string,
     @Param('queue') queue: string,
   ): { ok: boolean } | BadRequestResponse {
-    const { email, subject, url, nombre } = body;
+    const { email, subject, url, nombre, lastname, urlApp, mailApp, imgApp } =
+      body;
     if (!email || !subject) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
@@ -48,6 +49,10 @@ export class AppController {
           exchange,
           url,
           nombre,
+          lastname,
+          urlApp,
+          mailApp,
+          imgApp,
         },
         queue: queue,
         action: queue,
