@@ -9,7 +9,7 @@ export type MessageQueue = {
   imgApp: string;
   url?: string;
   nombre?: string;
-  body?: Record<string, string>;
+  lastname?: string;
 };
 
 export type MessageRabbit = {
