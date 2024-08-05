@@ -39,7 +39,7 @@ export const templateToSend = (bodyT: Record<string, unknown>): string => {
     }
 
     case 'recovery': {
-      const body = { app, urlApp, imgApp, mailApp, name, link, year };
+      const body = { app, urlApp, imgApp, mailApp, name, link, year, email };
       template = templateToString('recovery', body);
       break;
     }
