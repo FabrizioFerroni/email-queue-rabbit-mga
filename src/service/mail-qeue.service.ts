@@ -74,7 +74,6 @@ export class MailQeueService {
               imgApp,
             }: MessageQueue = JSON.parse(message.content);
 
-            // 'https://blocks.primeng.org/assets/images/blocks/logos/hyper.svg'
             const bodyT = {
               queue,
               app: kebabToTitleCase(exchange),
@@ -84,11 +83,12 @@ export class MailQeueService {
               name: nombre,
               link: url,
               lastname,
+              email,
             };
 
             mailer.sendMail({
               from: this.configService.get<string>('EMAIL_FROM'),
-              to: `${nombre} <${email}>`,
+              to: `${nombre} ${lastname} <${email}>`,
               subject: subject,
               html: templateToSend(bodyT),
             });
