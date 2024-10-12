@@ -54,7 +54,7 @@ jobs:
         with:
           portainerUrl: ${{ secrets.PORTAINER_HOST }}
           portainerApiKey: ${{ secrets.PORTAINER_ACCES_TOKEN }}
-          portainerEndpointId: 2
+          portainerEndpointId: 3
           stackName: ${{ secrets.IMAGE_NAME }}
           stackType: 2
           composeFile: docker-compose.yml
