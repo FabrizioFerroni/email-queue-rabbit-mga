@@ -18,7 +18,6 @@ jobs:
           response=$(curl -s -X POST "${{ secrets.NPM_HOST }}/api/tokens" \
            -H "Content-Type: application/json" \
            -d '{"identity":"${{ secrets.NPM_USER }}", "secret":"${{ secrets.NPM_PASS }}"}')
-           echo "Response: $response"  # Imprime la respuesta completa
            token=$(echo $response | jq -r '.token')
 
            if [[ -z "$token" || "$token" == "null" ]]; then
@@ -28,10 +27,6 @@ jobs:
 
            echo "TOKEN=$token" >> $GITHUB_ENV
 
-      - name: Verify token
-        run: |
-          echo "Token is: ${{ env.TOKEN }}"
-
       - name: Create domain in Nginx Proxy Manager
         run: |
           curl -X POST "${{ secrets.NPM_HOST }}/api/nginx/proxy-hosts" \
@@ -39,6 +34,7 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{
               "domain_names": ["${{ secrets.NPM_DOMAIN_APP }}"],
+              "forward_scheme": "${{ secrets.HTTP_SCHEME }}",
               "forward_host": "${{ secrets.DOCKER_HOST_APP }}",
               "forward_port": ${{ secrets.DOCKER_PORT }},
               "access_list_id": null,
