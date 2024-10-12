@@ -9,15 +9,15 @@ import amqp from 'amqp-connection-manager';
 @Injectable()
 export class MailQeueService {
   connect = {};
+  connectUri = '';
   constructor(private readonly configService: ConfigService) {
-    this.connect = {
-      protocol: this.configService.get<string>('RABBITMQ_PROTOCOL'),
-      host: this.configService.get<string>('RABBITMQ_HOST'),
-      port: this.configService.get<number>('RABBITMQ_PORT'),
-      username: this.configService.get<string>('RABBITMQ_USER'),
-      password: this.configService.get<string>('RABBITMQ_PASS'),
-      vhost: this.configService.get<string>('RABBITMQ_VHOST'),
-    };
+    const protocol = this.configService.get<string>('RABBITMQ_PROTOCOL');
+    const username = this.configService.get<string>('RABBITMQ_USER');
+    const password = this.configService.get<string>('RABBITMQ_PASS');
+    const host = this.configService.get<string>('RABBITMQ_HOST');
+    const port = this.configService.get<number>('RABBITMQ_PORT');
+
+    this.connectUri = `${protocol}://${username}:${password}@${host}:${port}`;
   }
 
   async sendEmailQueue({
@@ -27,7 +27,7 @@ export class MailQeueService {
   }: SendQueue<MessageQueue>) {
     let connection;
     try {
-      connection = await amqp.connect(this.connect);
+      connection = await amqp.connect(this.connectUri);
       const channel = await connection.createChannel();
       const sent = channel.publish(
         exchange,
@@ -52,8 +52,9 @@ export class MailQeueService {
     let connection;
     try {
       console.log(`try ${queue}`);
-      connection = await amqp.connect(this.connect);
+      connection = await amqp.connect(this.connectUri);
       const channel = await connection.createChannel();
+
       await channel.consume(
         queue,
         (message) => {

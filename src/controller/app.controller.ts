@@ -42,7 +42,7 @@ export class AppController {
       };
     }
     try {
-      this.mailQeueService.sendEmailQueue({
+      const test = this.mailQeueService.sendEmailQueue({
         message: {
           email: email.toLocaleLowerCase(),
           subject,
@@ -57,6 +57,9 @@ export class AppController {
         queue: queue,
         action: queue,
         key: exchange,
+      });
+      test.then((res) => {
+        console.log(res);
       });
     } catch (error) {
       console.log(error);

@@ -16,6 +16,7 @@ lerna-debug.log*
 # OS
 /kyes
 .DS_Store
+.history
 
 # Tests
 /coverage
