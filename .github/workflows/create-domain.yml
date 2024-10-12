@@ -16,16 +16,17 @@ jobs:
         id: get-token
         run: |
           response=$(curl -s -X POST "${{ secrets.NPM_HOST }}/api/tokens" \
-            -H "Content-Type: application/json" \
-            -d '{"identity":"${{ secrets.NPM_USER }}", "password":"${{ secrets.NPM_PASS }}"}')
-          token=$(echo $response | jq -r '.token')
+           -H "Content-Type: application/json" \
+           -d '{"identity":"${{ secrets.NPM_USER }}", "secret":"${{ secrets.NPM_PASS }}"}')
+           echo "Response: $response"  # Imprime la respuesta completa
+           token=$(echo $response | jq -r '.token')
 
-          if [[ -z "$token" ]]; then
-            echo "Error: Token is empty"
-            exit 1
-          fi
+           if [[ -z "$token" || "$token" == "null" ]]; then
+             echo "Error: Token is empty or null"
+             exit 1
+           fi
 
-          echo "TOKEN=$token" >> $GITHUB_ENV
+           echo "TOKEN=$token" >> $GITHUB_ENV
 
       - name: Verify token
         run: |
