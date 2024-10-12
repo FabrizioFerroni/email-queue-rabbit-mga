@@ -37,7 +37,19 @@ jobs:
               "forward_scheme": "${{ secrets.HTTP_SCHEME }}",
               "forward_host": "${{ secrets.DOCKER_HOST_APP }}",
               "forward_port": ${{ secrets.DOCKER_PORT }},
-              "access_list_id": null,
-              "certificate_id": null,
+              "access_list_id": "0",
+              "certificate_id": 0,
+              "meta": {
+                "letsencrypt_agree": false,
+                "dns_challenge": false
+              },
+              "advanced_config": "",
+              "locations": [],
+              "block_exploits": false,
+              "caching_enabled": false,
+              "allow_websocket_upgrade": false,
+              "http2_support": false,
+              "hsts_enabled": false,
+              "hsts_subdomains": false,
               "ssl_forced": false
             }'
