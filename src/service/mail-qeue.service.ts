@@ -1,6 +1,7 @@
-import { registerTemplate } from '@/config/templates/register.template';
+import { templateToSend } from '@/config/templates/templates';
 import { MessageQueue, MessageRabbit } from '@/types/message.type';
 import { SendQueue } from '@/types/send-qeue';
+import { kebabToTitleCase } from '@/utils/kebabToTitleCase';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import amqp from 'amqp-connection-manager';
@@ -8,38 +9,15 @@ import amqp from 'amqp-connection-manager';
 @Injectable()
 export class MailQeueService {
   connect = {};
+  connectUri = '';
   constructor(private readonly configService: ConfigService) {
-    this.connect = {
-      protocol: this.configService.get<string>('RABBITMQ_PROTOCOL'),
-      host: this.configService.get<string>('RABBITMQ_HOST'),
-      port: this.configService.get<number>('RABBITMQ_PORT'),
-      username: this.configService.get<string>('RABBITMQ_USER'),
-      password: this.configService.get<string>('RABBITMQ_PASS'),
-      vhost: this.configService.get<string>('RABBITMQ_VHOST'),
-    };
-  }
+    const protocol = this.configService.get<string>('RABBITMQ_PROTOCOL');
+    const username = this.configService.get<string>('RABBITMQ_USER');
+    const password = this.configService.get<string>('RABBITMQ_PASS');
+    const host = this.configService.get<string>('RABBITMQ_HOST');
+    const port = this.configService.get<number>('RABBITMQ_PORT');
 
-  async sendQueue({
-    message,
-    queue: cola,
-    key = null,
-  }: SendQueue<MessageQueue>) {
-    let connection;
-    try {
-      connection = await amqp.connect(this.connect);
-      const channel = await connection.createChannel();
-      const sent = channel.publish(
-        cola,
-        key,
-        Buffer.from(JSON.stringify(message)),
-      );
-
-      sent
-        ? console.log(`Sent message to "${key}" exchange`, message)
-        : console.log(`Fails sending message to "${key}" exchange`, message);
-    } catch (err) {
-      console.error(err);
-    }
+    this.connectUri = `${protocol}://${username}:${password}@${host}:${port}`;
   }
 
   async sendEmailQueue({
@@ -49,25 +27,22 @@ export class MailQeueService {
   }: SendQueue<MessageQueue>) {
     let connection;
     try {
-      connection = await amqp.connect(this.connect);
+      connection = await amqp.connect(this.connectUri);
       const channel = await connection.createChannel();
-      // await channel.assertExchange(exchange, 'direct');
-
       const sent = channel.publish(
         exchange,
         routing,
         Buffer.from(JSON.stringify(message)),
         {
-          // persistent: true,
+          persistent: true,
         },
       );
 
       sent
-        ? console.log(`Sent message to "${exchange}" exchange`, message)
-        : console.log(
-            `Fails sending message to "${exchange}" exchange`,
-            message,
-          );
+        ? console.log(
+            `Sent message to "${exchange}" exchange and queue "${routing}"`,
+          )
+        : console.log(`Fails sending message to "${exchange}" exchange`);
     } catch (err) {
       console.error(err);
     }
@@ -77,8 +52,9 @@ export class MailQeueService {
     let connection;
     try {
       console.log(`try ${queue}`);
-      connection = await amqp.connect(this.connect);
+      connection = await amqp.connect(this.connectUri);
       const channel = await connection.createChannel();
+
       await channel.consume(
         queue,
         (message) => {
@@ -87,39 +63,35 @@ export class MailQeueService {
               " [x] Received '%s'",
               JSON.parse(message.content.toString()),
             );
-            const { email, subject, url, nombre }: MessageQueue = JSON.parse(
-              message.content,
-            );
+            const {
+              email,
+              subject,
+              url,
+              nombre,
+              exchange,
+              lastname,
+              urlApp,
+              mailApp,
+              imgApp,
+            }: MessageQueue = JSON.parse(message.content);
 
-            let template;
-
-            switch (queue) {
-              case 'register': {
-                template = registerTemplate(email, url, nombre);
-                break;
-              }
-
-              case 'login': {
-                template = '';
-                break;
-              }
-
-              case 'recovery': {
-                template = '';
-                break;
-              }
-
-              case 'forgot_password': {
-                template = '';
-                break;
-              }
-            }
+            const bodyT = {
+              queue,
+              app: kebabToTitleCase(exchange),
+              urlApp,
+              imgApp,
+              mailApp,
+              name: nombre,
+              link: url,
+              lastname,
+              email,
+            };
 
             mailer.sendMail({
               from: this.configService.get<string>('EMAIL_FROM'),
-              to: email,
+              to: `${nombre} ${lastname} <${email}>`,
               subject: subject,
-              html: template,
+              html: templateToSend(bodyT),
             });
           }
         },

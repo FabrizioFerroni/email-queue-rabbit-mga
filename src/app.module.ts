@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from '@/controller/app.controller';
 import { AppService } from '@/service/app.service';
 import { InjectMailer, Mailer, MailerModule } from 'nestjs-mailer';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { configApp } from '@/config/config-app';
 import { MailQeueService } from './service/mail-qeue.service';
 
@@ -40,10 +40,28 @@ export class AppModule {
     @InjectMailer()
     private readonly mailer: Mailer,
     private readonly mailQeueService: MailQeueService,
+    private readonly configService: ConfigService,
   ) {
-    const colas = ['recovery', 'forgot_password', 'login', 'register'];
-    colas.forEach((item: string) => {
-      this.mailQeueService.receiveRabbit({ queue: item, mailer: this.mailer });
-    });
+    const colasString: string =
+      this.configService.get<string>('RABBITMQ_COLAS');
+
+    let colas: string[] = [];
+
+    try {
+      colas = JSON.parse(colasString);
+    } catch (e) {
+      console.error('Error parsing colas:', e);
+    }
+
+    if (Array.isArray(colas)) {
+      colas.forEach((queue: string) => {
+        this.mailQeueService.receiveRabbit({
+          queue,
+          mailer: this.mailer,
+        });
+      });
+    } else {
+      console.error('Colas is not an array:', colas);
+    }
   }
 }

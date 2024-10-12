@@ -4,8 +4,12 @@ export type MessageQueue = {
   email: string;
   subject: string;
   exchange: string;
+  urlApp: string;
+  mailApp: string;
+  imgApp: string;
   url?: string;
   nombre?: string;
+  lastname?: string;
 };
 
 export type MessageRabbit = {
