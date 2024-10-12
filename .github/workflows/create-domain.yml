@@ -19,12 +19,22 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{"identity":"${{ secrets.NPM_USER }}", "password":"${{ secrets.NPM_PASS }}"}')
           token=$(echo $response | jq -r '.token')
-          echo "::set-output name=token::$token"
+
+          if [[ -z "$token" ]]; then
+            echo "Error: Token is empty"
+            exit 1
+          fi
+
+          echo "TOKEN=$token" >> $GITHUB_ENV
+
+      - name: Verify token
+        run: |
+          echo "Token is: ${{ env.TOKEN }}"
 
       - name: Create domain in Nginx Proxy Manager
         run: |
           curl -X POST "${{ secrets.NPM_HOST }}/api/nginx/proxy-hosts" \
-            -H "Authorization: Bearer ${{ steps.get-token.outputs.token }}" \
+            -H "Authorization: Bearer ${{ env.TOKEN }}" \
             -H "Content-Type: application/json" \
             -d '{
               "domain_names": ["${{ secrets.NPM_DOMAIN_APP }}"],

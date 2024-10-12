@@ -31,4 +31,4 @@ services:
 
 networks:
   services-nwk:
-    driver: bridge
+    external: true
