@@ -1,0 +1,36 @@
+name: Create Domain in Nginx Proxy Manager
+
+on:
+  workflow_run:
+    workflows: ['Deploy to Portainer']
+    types:
+      - completed
+
+jobs:
+  create_domain:
+    name: Create domain
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get Nginx Proxy Manager token
+        id: get-token
+        run: |
+          response=$(curl -s -X POST "${{ secrets.NPM_HOST }}/api/tokens" \
+            -H "Content-Type: application/json" \
+            -d '{"identity":"${{ secrets.NPM_USER }}", "password":"${{ secrets.NPM_PASS }}"}')
+          token=$(echo $response | jq -r '.token')
+          echo "::set-output name=token::$token"
+
+      - name: Create domain in Nginx Proxy Manager
+        run: |
+          curl -X POST "${{ secrets.NPM_HOST }}/api/nginx/proxy-hosts" \
+            -H "Authorization: Bearer ${{ steps.get-token.outputs.token }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "domain_names": ["${{ secrets.NPM_DOMAIN_APP }}"],
+              "forward_host": "${{ secrets.DOCKER_HOST_APP }}",
+              "forward_port": ${{ secrets.DOCKER_PORT }},
+              "access_list_id": null,
+              "certificate_id": null,
+              "ssl_forced": false
+            }'

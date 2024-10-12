@@ -1,0 +1,67 @@
+name: Deploy to Portainer
+
+on:
+  workflow_run:
+    workflows: ['Build Docker Image']
+    types:
+      - completed
+
+jobs:
+  deploy:
+    name: Deploy to portainer
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      GITHUB_REF: ${{ github.ref }}
+      DOCKER_REGISTRY: docker.io
+      DOCKER_IMAGE: ${{ secrets.IMAGE_NAME }}
+      DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Creating envs
+        run: |
+          echo "IMAGE_TAG=sha-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "DOCKER_IMAGE_URI=${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_USER }}/${{ env.DOCKER_IMAGE }}" >> $GITHUB_ENV
+
+      - name: Set up environment variables
+        run: |
+          echo "API_PORT=${{ secrets.API_PORT }}" >> .env
+          echo "MAIL_ENABLED=${{ secrets.MAIL_ENABLED }}" >> .env
+          echo "TZ=${{ secrets.TZ }}" >> .env
+          echo "FRONT_HOST=${{ secrets.FRONT_HOST }}" >> .env
+          echo "HOST_METHODS=${{ secrets.HOST_METHODS }}" >> .env
+          echo "HOST_ALLOWED_HEADERS=${{ secrets.HOST_ALLOWED_HEADERS }}" >> .env
+          echo "HOST_CREDENTIALS=${{ secrets.HOST_CREDENTIALS }}" >> .env
+          echo "TRANSPORT_FALLBACK=${{ secrets.TRANSPORT_FALLBACK }}" >> .env
+          echo "EMAIL_FROM=${{ secrets.EMAIL_FROM }}" >> .env
+          echo "MAIL_HOST=${{ secrets.MAIL_HOST }}" >> .env
+          echo "MAIL_PORT=${{ secrets.MAIL_PORT }}" >> .env
+          echo "MAIL_USER=${{ secrets.MAIL_USER }}" >> .env
+          echo "MAIL_PASS=${{ secrets.MAIL_PASS }}" >> .env
+          echo "RABBITMQ_PROTOCOL=${{ secrets.RABBITMQ_PROTOCOL }}" >> .env
+          echo "RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }}" >> .env
+          echo "RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}" >> .env
+          echo "RABBITMQ_USER=${{ secrets.RABBITMQ_USER }}" >> .env
+          echo "RABBITMQ_PASS=${{ secrets.RABBITMQ_PASS }}" >> .env
+          echo "RABBITMQ_VHOST=${{ secrets.RABBITMQ_VHOST }}" >> .env
+          echo "RABBITMQ_COLAS=${{ secrets.RABBITMQ_COLAS }}" >> .env
+
+      - name: Deploy stack to Portainer
+        uses: rrennoir/portainer-stack@v2
+        with:
+          portainerUrl: ${{ secrets.PORTAINER_HOST }}
+          portainerApiKey: ${{ secrets.PORTAINER_ACCES_TOKEN }}
+          portainerEndpointId: 2
+          stackName: ${{ secrets.IMAGE_NAME }}
+          stackType: 2
+          composeFile: docker-compose.yml
+          delete: false
+          prune: false
+          pullImage: false
+          verifySSL: false
+
+      - name: Save Deployment Status
+        run: echo "DEPLOY_STATUS=success" >> $GITHUB_ENV
