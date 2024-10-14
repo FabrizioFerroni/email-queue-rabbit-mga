@@ -5,6 +5,7 @@ services:
     ports:
       - 8080:4100
     environment:
+      API_PORT: ${API_PORT}
       MAIL_ENABLED: ${MAIL_ENABLED}
       TZ: ${TZ}
       FRONT_HOST: ${FRONT_HOST}
