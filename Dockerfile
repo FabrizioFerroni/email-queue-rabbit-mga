@@ -4,6 +4,8 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
+COPY .env.example ./.env
+
 RUN npm clean-install
 
 COPY . ./
