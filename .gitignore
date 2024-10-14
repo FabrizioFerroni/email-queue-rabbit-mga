@@ -5,6 +5,8 @@ keys.json
 /.scannerwork
 /notes
 
+.github/workflows/deploy-portainer.yml.bkp
+
 # Logs
 logs
 *.log
