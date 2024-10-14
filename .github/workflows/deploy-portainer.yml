@@ -32,11 +32,11 @@ jobs:
           echo "MAIL_ENABLED=${{ secrets.MAIL_ENABLED }}" >> .env
           echo "TZ=${{ secrets.TZ }}" >> .env
           echo "FRONT_HOST=${{ secrets.FRONT_HOST }}" >> .env
-          echo "HOST_METHODS=${{ secrets.HOST_METHODS }}" >> .env
-          echo "HOST_ALLOWED_HEADERS=${{ secrets.HOST_ALLOWED_HEADERS }}" >> .env
-          echo "HOST_CREDENTIALS=${{ secrets.HOST_CREDENTIALS }}" >> .env
+          echo "HOST_METHODS='${{ secrets.HOST_METHODS }}'" >> .env
+          echo "HOST_ALLOWED_HEADERS='${{ secrets.HOST_ALLOWED_HEADERS }}'" >> .env
+          echo "HOST_CREDENTIALS='${{ secrets.HOST_CREDENTIALS }}'" >> .env
           echo "TRANSPORT_FALLBACK=${{ secrets.TRANSPORT_FALLBACK }}" >> .env
-          echo "EMAIL_FROM=${{ secrets.EMAIL_FROM }}" >> .env
+          echo "EMAIL_FROM='${{ secrets.EMAIL_FROM }}'" >> .env
           echo "MAIL_HOST=${{ secrets.MAIL_HOST }}" >> .env
           echo "MAIL_PORT=${{ secrets.MAIL_PORT }}" >> .env
           echo "MAIL_USER=${{ secrets.MAIL_USER }}" >> .env
@@ -47,7 +47,7 @@ jobs:
           echo "RABBITMQ_USER=${{ secrets.RABBITMQ_USER }}" >> .env
           echo "RABBITMQ_PASS=${{ secrets.RABBITMQ_PASS }}" >> .env
           echo "RABBITMQ_VHOST=${{ secrets.RABBITMQ_VHOST }}" >> .env
-          echo "RABBITMQ_COLAS=${{ secrets.RABBITMQ_COLAS }}" >> .env
+          echo "RABBITMQ_COLAS='${{ secrets.RABBITMQ_COLAS }}'" >> .env
 
       - name: Save ENV Status
         run: echo "Variables seteadas" >> $GITHUB_STEP_SUMMARY
