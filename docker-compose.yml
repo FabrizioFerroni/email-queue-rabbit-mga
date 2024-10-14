@@ -1,5 +1,6 @@
 services:
-  app:
+  email-service-mga:
+    container_name: email-service-mga
     image: fabriziodevar/email-service-mga:latest
     ports:
       - 8080:4100

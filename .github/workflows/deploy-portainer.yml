@@ -49,19 +49,22 @@ jobs:
           echo "RABBITMQ_VHOST=${{ secrets.RABBITMQ_VHOST }}" >> .env
           echo "RABBITMQ_COLAS=${{ secrets.RABBITMQ_COLAS }}" >> .env
 
+      - name: Save ENV Status
+        run: echo "Variables seteadas" >> $GITHUB_STEP_SUMMARY
+
       - name: Deploy stack to Portainer
-        uses: rrennoir/portainer-stack@v2
+        uses: cssnr/portainer-stack-deploy-action@v1
         with:
-          portainerUrl: ${{ secrets.PORTAINER_HOST }}
-          portainerApiKey: ${{ secrets.PORTAINER_ACCES_TOKEN }}
-          portainerEndpointId: 3
-          stackName: ${{ secrets.IMAGE_NAME }}
-          stackType: 2
-          composeFile: docker-compose.yml
-          delete: false
-          prune: false
-          pullImage: false
-          verifySSL: false
+          url: ${{ secrets.PORTAINER_HOST }}
+          token: ${{ secrets.PORTAINER_ACCES_TOKEN }}
+          endpoint: 3
+          name: ${{ secrets.IMAGE_NAME }}
+          file: docker-compose.yml
+          type: file
+          prune: true
+          pull: true
+          tlsskip: false
+          env_file: .env
 
       - name: Save Deployment Status
         run: echo "DEPLOY_STATUS=success" >> $GITHUB_ENV
