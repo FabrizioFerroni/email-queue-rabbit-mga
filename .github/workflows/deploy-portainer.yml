@@ -58,6 +58,7 @@ jobs:
           url: ${{ secrets.PORTAINER_HOST }}
           token: ${{ secrets.PORTAINER_ACCES_TOKEN }}
           endpoint: 3
+          standalone: true
           name: ${{ secrets.IMAGE_NAME }}
           file: docker-compose.yml
           type: file
