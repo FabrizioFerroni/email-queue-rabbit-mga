@@ -47,7 +47,7 @@ jobs:
           echo "RABBITMQ_USER=${{ secrets.RABBITMQ_USER }}" >> .env
           echo "RABBITMQ_PASS=${{ secrets.RABBITMQ_PASS }}" >> .env
           echo "RABBITMQ_VHOST=${{ secrets.RABBITMQ_VHOST }}" >> .env
-          echo "RABBITMQ_COLAS='${{ secrets.RABBITMQ_COLAS }}'" >> .env
+          echo "RABBITMQ_COLAS=${{ secrets.RABBITMQ_COLAS }}" >> .env
 
       - name: Save ENV Status
         run: echo "Variables seteadas" >> $GITHUB_STEP_SUMMARY
