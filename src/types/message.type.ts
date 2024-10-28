@@ -7,9 +7,11 @@ export type MessageQueue = {
   urlApp: string;
   mailApp: string;
   imgApp: string;
+  color: string;
   url?: string;
   nombre?: string;
   lastname?: string;
+  emailFrom?: string;
 };
 
 export type MessageRabbit = {

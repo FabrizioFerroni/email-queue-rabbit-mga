@@ -32,8 +32,18 @@ export class AppController {
     @Param('exchange') exchange: string,
     @Param('queue') queue: string,
   ): { ok: boolean } | BadRequestResponse {
-    const { email, subject, url, nombre, lastname, urlApp, mailApp, imgApp } =
-      body;
+    const {
+      email,
+      subject,
+      url,
+      nombre,
+      lastname,
+      urlApp,
+      mailApp,
+      imgApp,
+      color,
+      emailFrom,
+    } = body;
     if (!email || !subject) {
       return {
         statusCode: HttpStatus.BAD_REQUEST,
@@ -42,24 +52,23 @@ export class AppController {
       };
     }
     try {
-      const test = this.mailQeueService.sendEmailQueue({
+      this.mailQeueService.sendEmailQueue({
         message: {
           email: email.toLocaleLowerCase(),
           subject,
           exchange,
           url,
+          color,
           nombre,
           lastname,
           urlApp,
           mailApp,
           imgApp,
+          emailFrom,
         },
         queue: queue,
         action: queue,
         key: exchange,
-      });
-      test.then((res) => {
-        console.log(res);
       });
     } catch (error) {
       console.log(error);
