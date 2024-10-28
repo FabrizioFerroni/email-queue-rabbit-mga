@@ -8,7 +8,6 @@ import amqp from 'amqp-connection-manager';
 
 @Injectable()
 export class MailQeueService {
-  connect = {};
   connectUri = '';
   constructor(private readonly configService: ConfigService) {
     const protocol = this.configService.get<string>('RABBITMQ_PROTOCOL');
@@ -73,6 +72,8 @@ export class MailQeueService {
               urlApp,
               mailApp,
               imgApp,
+              color,
+              emailFrom,
             }: MessageQueue = JSON.parse(message.content);
 
             const bodyT = {
@@ -85,10 +86,12 @@ export class MailQeueService {
               link: url,
               lastname,
               email,
+              color,
+              emailFrom,
             };
 
             mailer.sendMail({
-              from: this.configService.get<string>('EMAIL_FROM'),
+              from: emailFrom,
               to: `${nombre} ${lastname} <${email}>`,
               subject: subject,
               html: templateToSend(bodyT),
